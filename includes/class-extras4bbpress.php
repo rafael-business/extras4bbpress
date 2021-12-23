@@ -154,8 +154,11 @@ class Extras4bbpress {
 
 		$plugin_admin = new Extras4bbpress_Admin( $this->get_plugin_name(), $this->get_version() );
 
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+		$this->loader->add_action( 'admin_enqueue_scripts', 		$plugin_admin, 'enqueue_styles' );
+		$this->loader->add_action( 'admin_enqueue_scripts', 		$plugin_admin, 'enqueue_scripts' );
+		$this->loader->add_action( 'bbp_topic_metabox', 			$plugin_admin, 'bbp_extra_fields_admin' );
+		$this->loader->add_action( 'add_meta_boxes', 				$plugin_admin, 'add_meta_meta_box' );
+		$this->loader->add_action( 'save_post', 					$plugin_admin, 'bbp_save_topic_extra_fields', 10, 2 );
 
 	}
 
@@ -172,6 +175,14 @@ class Extras4bbpress {
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+		$this->loader->add_action( 'bbp_theme_before_topic_form_content', $plugin_public, 'bbp_extra_fields');
+		//$this->loader->add_action('bbp_theme_before_reply_form_content',$plugin_public,'voices_named');
+		
+		$this->loader->add_filter( 
+			'bbp_current_user_can_access_create_reply_form', 
+			$plugin_public, 
+			'bbp_current_user_can_reply_this_topic' 
+		);
 
 	}
 

@@ -100,4 +100,45 @@ class Extras4bbpress_Public {
 
 	}
 
+
+	public function bbp_extra_fields() {
+
+	   $value = get_post_meta( bbp_get_topic_id(), 'bbp_extra_dt_inicio', true);
+	   echo '<label for="bbp_extra_dt_inicio">Data de Início</label><br>';
+	   echo "<input type='datetime-local' name='bbp_extra_dt_inicio' value='".$value."'>";
+
+	   $value = get_post_meta( bbp_get_topic_id(), 'bbp_extra_dt_termino', true);
+	   echo '<label for="bbp_extra_dt_termino">Data de Término</label><br>';
+	   echo "<input type='datetime-local' name='bbp_extra_dt_termino' value='".$value."'>";
+	}
+
+	public function bbp_current_user_can_reply_this_topic() {
+
+		$voice_count = bbp_get_topic_voice_count( null, true );
+		$topic_id = bbp_get_topic_id();
+		$bbp_extra_limite = get_post_meta( $topic_id, 'bbp_extra_limite', true );
+		
+		$bbp_db = bbp_db();
+
+		$sql_select = "SELECT `post_author` FROM `{$bbp_db->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "' AND `post_parent` = '" . $topic_id . "'";
+
+		$vozes = $bbp_db->get_results( $sql_select );
+
+		if ( !is_wp_error( $vozes ) ) {
+
+			$falantes = array();
+			foreach ( $vozes as $voz ) {
+				
+				array_push( $falantes, $voz->post_author );
+			}
+		}
+
+		echo $bbp_extra_limite .' - '. $voice_count;
+
+		if ( 
+			intval( $bbp_extra_limite ) > $voice_count || 
+			in_array( get_current_user_id(), $falantes ) 
+		) { return true; } else { return false; }
+	}
+
 }
