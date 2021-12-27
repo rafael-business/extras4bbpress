@@ -184,6 +184,8 @@ class Extras4bbpress {
 			'bbp_current_user_can_reply_this_topic' 
 		);
 
+		$this->loader->add_action( 'bbp_template_before_single_topic', $plugin_public, 'bbp_get_infos', 10, 0 );
+
 	}
 
 	/**

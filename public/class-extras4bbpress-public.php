@@ -133,12 +133,39 @@ class Extras4bbpress_Public {
 			}
 		}
 
-		echo $bbp_extra_limite .' - '. $voice_count;
-
 		if ( 
 			intval( $bbp_extra_limite ) > $voice_count || 
 			in_array( get_current_user_id(), $falantes ) 
 		) { return true; } else { return false; }
+	}
+
+
+	
+	public function bbp_get_infos() { 
+	    
+	    $topic_id 	= bbp_get_topic_id();
+		$inicio 	= get_post_meta( $topic_id, 'bbp_extra_dt_inicio', true );
+		$termino 	= get_post_meta( $topic_id, 'bbp_extra_dt_termino', true );
+
+		$_inicio	= wp_date( 'j \d\e F \d\e Y à\s H:i', strtotime( $inicio ) );
+		$_termino	= wp_date( 'j \d\e F \d\e Y à\s H:i', strtotime( $termino ) );
+
+	    ?>
+	    <div class="bbp-template-notice info">
+			<ul>
+				<li>
+                    Discussão com início em <strong><?= $_inicio ?></strong> e término em <strong><?= $_termino ?></strong>.
+				</li>
+			</ul>
+		</div>
+		<div class="bbp-template-notice error">
+			<ul>
+				<li>
+                    Desculpe, mas essa discussão possui uma quantidade de membros limitada.
+				</li>
+			</ul>
+		</div>
+	    <?php 
 	}
 
 }
