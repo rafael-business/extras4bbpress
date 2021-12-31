@@ -15,10 +15,10 @@
  * @wordpress-plugin
  * Plugin Name:       Extras for bbPress
  * Plugin URI:        https://codash.com.br/produto/extras4bbpress/
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
- * Version:           1.0.0
+ * Description:       Adiciona atributos extras aos tópicos do fórum bbPress, como por exemplo: data inicial e final para respostas, limite de pessoas na discussão e acesso a grupos específicos.
+ * Version:           1.2.0
  * Author:            Codash
- * Author URI:        https://rafael.business
+ * Author URI:        https://codash.com.br/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       extras4bbpress

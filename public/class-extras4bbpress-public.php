@@ -113,7 +113,7 @@ class Extras4bbpress_Public {
 	}
 
 	public function bbp_current_user_can_reply_this_topic() {
-
+		
 		$voice_count = bbp_get_topic_voice_count( null, true );
 		$topic_id = bbp_get_topic_id();
 		$bbp_extra_limite = get_post_meta( $topic_id, 'bbp_extra_limite', true );
@@ -133,15 +133,23 @@ class Extras4bbpress_Public {
 			}
 		}
 
+		if ( 0 === intval( $bbp_extra_limite ) ) return true;
+
 		if ( 
 			intval( $bbp_extra_limite ) > $voice_count || 
 			in_array( get_current_user_id(), $falantes ) 
 		) { return true; } else { return false; }
 	}
 
+	public function bbp_current_user_no_reply() {
 
+		add_filter( 
+			'bbp_current_user_can_access_create_reply_form', 
+			'__return_false' 
+		);
+	}
 	
-	public function bbp_get_infos() { 
+	public function bbp_get_infos_header() { 
 	    
 	    $topic_id 	= bbp_get_topic_id();
 		$inicio 	= get_post_meta( $topic_id, 'bbp_extra_dt_inicio', true );
@@ -150,22 +158,45 @@ class Extras4bbpress_Public {
 		$_inicio	= wp_date( 'j \d\e F \d\e Y à\s H:i', strtotime( $inicio ) );
 		$_termino	= wp_date( 'j \d\e F \d\e Y à\s H:i', strtotime( $termino ) );
 
+		if ( time() < strtotime( $inicio ) && time() < strtotime( $termino ) ) : 
+		
+		$this->bbp_current_user_no_reply();
+
 	    ?>
 	    <div class="bbp-template-notice info">
 			<ul>
 				<li>
-                    Discussão com início em <strong><?= $_inicio ?></strong> e término em <strong><?= $_termino ?></strong>.
-				</li>
-			</ul>
-		</div>
-		<div class="bbp-template-notice error">
-			<ul>
-				<li>
-                    Desculpe, mas essa discussão possui uma quantidade de membros limitada.
+                    Discussão com início em <strong><?= $_inicio ?></strong>.
 				</li>
 			</ul>
 		</div>
 	    <?php 
+
+		elseif ( time() > strtotime( $inicio ) && time() < strtotime( $termino ) ) : 
+		
+		?>
+		<div class="bbp-template-notice info">
+			<ul>
+				<li>
+                    Discussão com término em <strong><?= $_termino ?></strong>.
+				</li>
+			</ul>
+		</div>
+		<?php
+
+		elseif ( time() > strtotime( $inicio ) && time() > strtotime( $termino ) ) : 
+		$this->bbp_current_user_no_reply();
+
+		?>
+		<div class="bbp-template-notice">
+			<ul>
+				<li>
+                    Discussão encerrada em <strong><?= $_termino ?></strong>.
+				</li>
+			</ul>
+		</div>
+		<?php
+		endif;
 	}
 
 }

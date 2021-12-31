@@ -144,15 +144,16 @@ class Extras4bbpress_Admin {
 
 		$value = get_post_meta( $this->post, 'bbp_extra_limite', true );
 		?>
-		<p>
+		<div id="bbp_extra_limite_p" <?= 0 == $value ? 'style="display: none;"' : '' ?>>
 			<div>
 				<strong><?php esc_html_e( 'Qtd. de Vozes', 'extras4bbpress' ); ?></strong>
 				<label class="screen-reader-text" for="bbp_extra_limite"><?php esc_html_e( 'Qtd. de Vozes', 'extras4bbpress' ); ?></label>
 			</div>
-			<input type="number" name="bbp_extra_limite" value="<?= $value ?>" min="2">
+			<input type="number" name="bbp_extra_limite" value="<?= $value ?>" min="0">
 			<br />
 			<small>Atenção: Atente-se para o fato de que o criador do tópico é automaticamente uma voz.</small>
-		</p>
+		</div>
+		<!-- RESTRIÇÃO À GRUPOS
 		<?php
 		$groups = $this->get_bp_groups();
 		?>
@@ -163,6 +164,12 @@ class Extras4bbpress_Admin {
 			</div>
 			<?php 
 			foreach( $groups as $group ) : 
+
+				if ( 0 === $group['value'] ){
+
+					echo $group['label'];
+					continue;
+				}
 				$values = get_post_meta( $this->post, 'bbp_extra_groups', true );
 				$values_unserialized = maybe_unserialize( $values );
 			?>
@@ -177,6 +184,7 @@ class Extras4bbpress_Admin {
 			<?php 
 			endforeach; ?>
 		</p>
+		-->
 		<?php
 	}
 
@@ -191,15 +199,23 @@ class Extras4bbpress_Admin {
 		    $headers 		= $groups['headers'];
 		    $groups_body    = json_decode( $groups['body'] );
 		}
+
 		$groups_formatted = array();
-		foreach ( $groups_body as $group ) {
+		if ( isset( $groups_body ) && '' !== $groups_body ) {
+
+			foreach ( $groups_body as $group ) {
 			
-			array_push( $groups_formatted, ['value' => $group->id, 'label' => $group->name] );
+				array_push( $groups_formatted, ['value' => $group->id, 'label' => $group->name] );
+			}
+		} else {
+
+			array_push( $groups_formatted, ['value' => 0, 'label' => 'Nenhum grupo encontrado.'] );
 		}
 
 		return $groups_formatted;
 	}
 
+	/* DEBUG
 	public function add_meta_meta_box() {
 
 	    add_meta_box('meta-meta-box-id', 'Meta', array( $this, 'meta_meta_box' ), 'topic', 'normal', 'high');
@@ -214,6 +230,7 @@ class Extras4bbpress_Admin {
 	    print_r( get_post_meta($post->ID) );
 	    echo '</pre>';
 	}
+	*/
 
 	public function bbp_save_topic_extra_fields( $topic_id = null, $post = null ) {
 
@@ -231,12 +248,14 @@ class Extras4bbpress_Admin {
     	if ( isset($_POST) && $_POST['bbp_extra_limite']!='' )
     		update_post_meta( $topic_id, 'bbp_extra_limite', $_POST['bbp_extra_limite'] );
 
-    	$groups = $this->get_bp_groups();
+    	/*
+		$groups = $this->get_bp_groups();
 		foreach( $groups as $group ) : 
 
 			if ( isset($_POST) && $_POST["bbp_extra_groups"]!='' )
     			update_post_meta( $topic_id, "bbp_extra_groups", $_POST["bbp_extra_groups"] );
 		endforeach;
+		*/
 	}
 
 

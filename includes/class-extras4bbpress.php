@@ -157,7 +157,7 @@ class Extras4bbpress {
 		$this->loader->add_action( 'admin_enqueue_scripts', 		$plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', 		$plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'bbp_topic_metabox', 			$plugin_admin, 'bbp_extra_fields_admin' );
-		$this->loader->add_action( 'add_meta_boxes', 				$plugin_admin, 'add_meta_meta_box' );
+		//$this->loader->add_action( 'add_meta_boxes', 				$plugin_admin, 'add_meta_meta_box' ); DEBUG
 		$this->loader->add_action( 'save_post', 					$plugin_admin, 'bbp_save_topic_extra_fields', 10, 2 );
 
 	}
@@ -181,10 +181,11 @@ class Extras4bbpress {
 		$this->loader->add_filter( 
 			'bbp_current_user_can_access_create_reply_form', 
 			$plugin_public, 
-			'bbp_current_user_can_reply_this_topic' 
+			'bbp_current_user_can_reply_this_topic'
 		);
 
-		$this->loader->add_action( 'bbp_template_before_single_topic', $plugin_public, 'bbp_get_infos', 10, 0 );
+		$this->loader->add_action( 'bbp_template_before_single_topic', $plugin_public, 'bbp_get_infos_header', 1, 0 );
+		//$this->loader->add_action( 'bbp_template_after_single_topic', $plugin_public, 'bbp_get_infos_footer', 10, 0 );
 
 	}
 
