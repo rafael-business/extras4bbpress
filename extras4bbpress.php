@@ -16,7 +16,7 @@
  * Plugin Name:       Extras for bbPress
  * Plugin URI:        https://codash.com.br/produto/extras4bbpress/
  * Description:       Adiciona atributos extras aos tópicos do fórum bbPress, como por exemplo: data inicial e final para respostas, limite de pessoas na discussão e acesso a grupos específicos.
- * Version:           1.2.0
+ * Version:           1.3.0
  * Author:            Codash
  * Author URI:        https://codash.com.br/
  * License:           GPL-2.0+

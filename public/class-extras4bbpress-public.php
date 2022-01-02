@@ -104,12 +104,29 @@ class Extras4bbpress_Public {
 	public function bbp_extra_fields() {
 
 	   $value = get_post_meta( bbp_get_topic_id(), 'bbp_extra_dt_inicio', true);
-	   echo '<label for="bbp_extra_dt_inicio">Data de Início</label><br>';
-	   echo "<input type='datetime-local' name='bbp_extra_dt_inicio' value='".$value."'>";
+	   ?>
+	   	<div class="form-item col-md-4">
+	   		<label for="bbp_extra_dt_inicio">Data de Início</label><br>
+			<input type='datetime-local' name='bbp_extra_dt_inicio' value='<?= $value ?>'>
+		</div>
+	   <?php
 
 	   $value = get_post_meta( bbp_get_topic_id(), 'bbp_extra_dt_termino', true);
-	   echo '<label for="bbp_extra_dt_termino">Data de Término</label><br>';
-	   echo "<input type='datetime-local' name='bbp_extra_dt_termino' value='".$value."'>";
+	   ?>
+	   	<div class="form-item col-md-4">
+	   		<label for="bbp_extra_dt_termino">Data de Término</label><br>
+	   		<input type='datetime-local' name='bbp_extra_dt_termino' value='<?= $value ?>'>
+		</div>
+	   <?php
+
+		$value = get_post_meta( bbp_get_topic_id(), 'bbp_extra_limite', true);
+		?>
+		<div class="form-item col-md-4">
+			<label for="bbp_extra_limite"><?php esc_html_e( 'Qtd. de Vozes', 'extras4bbpress' ); ?></label>
+			<abbr title="Para deixar o acesso livre, coloque o número zero">?</abbr><br>
+			<input type="number" name="bbp_extra_limite" value="<?= $value ?>" min="0">
+		</div>
+		<?php
 	}
 
 	public function bbp_current_user_can_reply_this_topic() {

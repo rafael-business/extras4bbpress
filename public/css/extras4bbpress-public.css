@@ -2,3 +2,21 @@
  * All of the CSS for your public-facing functionality should be
  * included in this file.
  */
+
+.form-item abbr {
+    text-decoration: none !important;
+    background: var(--secondary_color);
+    width: 17px;
+    height: 17px;
+    display: inline-block;
+    border-radius: 50%;
+    color: white;
+    line-height: 17px;
+    font-size: 14px;
+    margin-left: 10px;
+    padding-left: 5px;
+}
+
+.form-item input {
+    width: 100%;
+}
