@@ -195,7 +195,7 @@ class Extras4bbpress_Public {
 		<div class="bbp-template-notice info">
 			<ul>
 				<li>
-                    Discussão com término em <strong><?= $_termino ?></strong>.
+                    Discussão com início em <strong><?= $_inicio ?></strong> e término em <strong><?= $_termino ?></strong>.
 				</li>
 			</ul>
 		</div>
@@ -209,6 +209,19 @@ class Extras4bbpress_Public {
 			<ul>
 				<li>
                     Discussão encerrada em <strong><?= $_termino ?></strong>.
+				</li>
+			</ul>
+		</div>
+		<?php
+		endif;
+
+		$limite = get_post_meta( bbp_get_topic_id(), 'bbp_extra_limite', true);
+		if ( 0 !== $limite ) : 
+		?>
+		<div class="bbp-template-notice info">
+			<ul>
+				<li>
+                    Discussão limitada a <strong><?= $limite ?> participantes</strong>.
 				</li>
 			</ul>
 		</div>
