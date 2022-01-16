@@ -123,7 +123,7 @@ class Extras4bbpress_Public {
 		?>
 		<div class="form-item col-md-4">
 			<label for="bbp_extra_limite"><?php esc_html_e( 'Qtd. de Vozes', 'extras4bbpress' ); ?></label>
-			<abbr title="Para deixar o acesso livre, coloque o número zero">?</abbr><br>
+			<abbr title="Para deixar o etiqueta livre, coloque o número zero">?</abbr><br>
 			<input type="number" name="bbp_extra_limite" value="<?= $value ?>" min="0">
 		</div>
 		<?php
@@ -227,6 +227,154 @@ class Extras4bbpress_Public {
 		</div>
 		<?php
 		endif;
+	}
+
+	public function bbp_new_admin_links( $links = '', $args ){ 
+		
+		if ( ! current_user_can( 'moderate', bbp_get_forum_id() ) )
+			return;
+
+		$reply_id = bbp_get_reply_id();
+
+		$links .= $args['before'];
+		$links .= '<label data-id="' . $reply_id . '"><input class="resposta" type="checkbox" value="'.$reply_id.'">&nbsp;';
+		$links .= __( 'Incluir no Relatório', 'extras4bbpress' ) . '</label>';
+		$links .= $args['sep'] . $args['after'];
+		
+		return $links;
+	}
+
+	public function bbp_btn_get_relatorio(){ 
+
+		if ( ! current_user_can( 'moderate', bbp_get_forum_id() ) )
+			return;
+
+		$url_save = get_rest_url( null, 'relatorio/save' );
+		
+		?>
+		<div class="row">
+			<fieldset class="col relatorios border rounded-top">
+				<legend><?= __( 'Relatórios', 'extras4bbpress' ) ?></legend>
+				<p class="pl-2">
+					<?= __( 'Selecione as respostas, que deseja incluir, acima.', 'extras4bbpress' ) ?>
+					<br />
+					<span id="badge_respostas" class="badge bg-danger text-light" data-change='bg-success'>
+						<?= __( 'Nenhuma', 'extras4bbpress' ) ?>
+					</span>
+					<span><?= __( ' resposta(s) adicionada(s) ao relatório.', 'extras4bbpress' ) ?></span>
+				</p>
+				<input type="hidden" id="respostas">
+				<input type="hidden" id="relatorio_topic_id" value="<?= get_the_ID() ?>">
+				<input type="hidden" id="relatorio_topic" value="<?= get_the_title() ?>">
+				<input type="hidden" id="relatorio_gestor" value="<?= get_current_user_id() ?>">
+				<div class="form-group row">
+					<label class="col-sm-3 col-form-label pl-4" for="relatorio_parecer">
+						<?= __( 'Seu parecer', 'extras4bbpress' ) ?>
+					</label>
+					<div class="col-sm-9">
+						<div class="border rounded">
+							<textarea id="relatorio_parecer" name="relatorio_parecer"></textarea>
+						</div>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-3 col-form-label pl-4">
+						<?= __( 'Etiqueta', 'extras4bbpress' ) ?>
+					</label>
+					<div class="col-sm-9">
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="radio" name="relatorio_etiqueta" id="etiqueta_publico" value="0" checked>
+							<label class="form-check-label" for="etiqueta_publico"><?= __( 'Público', 'extras4bbpress' ) ?></label>
+						</div>
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="radio" name="relatorio_etiqueta" id="etiqueta_privado" value="1">
+							<label class="form-check-label" for="etiqueta_privado"><?= __( 'Privado', 'extras4bbpress' ) ?></label>
+						</div>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-3 col-form-label pl-4" for="relatorio_parent">
+						<?= __( 'Documento', 'extras4bbpress' ) ?>
+					</label>
+					<div class="col-sm-9 input-group">
+						<select class="form-select border border-primary rounded-left pl-3 pr-3" id="relatorio_parent">
+							<option value="0"><?= __( '-- selecione --', 'extras4bbpress' ) ?></option>
+							<option value="62"><?= __( 'Relatório de Linha de Discussão', 'extras4bbpress' ) ?></option>
+						</select>
+						<div class="input-group-append">
+							<button id="gerar_relatorio" class="btn btn-primary" type="button" data-save="<?= $url_save ?>">
+								<?= __( 'Gerar', 'extras4bbpress' ) ?>
+							</button>
+						</div>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+		<?php
+	}
+
+	public function bbp_save_relatorio( $post ) {
+
+		$front = array();
+		
+		$query_respostas = new WP_Query( array(
+			'post_type'		=> 'reply',
+			'post_status' 	=> array( 'publish' ),
+    		'perm'        	=> 'readable',
+			'post__in'		=> explode( ',', $post['respostas'] ),
+			'nopaging'      => TRUE,
+			'posts_per_page'=> -1,
+			'order'         => 'DESC',
+			'orderby'       => 'ID'
+		));
+		
+		if ( $query_respostas->have_posts() ) {
+
+			$content = '';
+			
+			while ( $query_respostas->have_posts() ) {
+
+				$query_respostas->the_post();
+				$id = get_the_ID();
+
+				$content .= get_the_author() . ' em ';
+				$content .= get_the_date() . ':<br />';
+				$content .= get_the_content() . '<hr />';
+			}
+
+			$content .= $post['parecer'];
+			$front['etiqueta'] = $post['etiqueta'];
+			$front['tipo'] = $post['tipo'];
+		} else {
+			
+			
+		}
+		
+		wp_reset_postdata();
+		
+		$post_arr = array(
+			'post_type'    => 'docs',
+			'post_title'   => $post['topic'],
+			'post_content' => $content,
+			'post_status'  => 'publish',
+			'post_author'  => $post['gestor'],
+			'post_parent'  => $post['parent']
+		);
+
+		$doc_id = wp_insert_post( $post_arr, true );
+
+		return 
+		is_wp_error( $doc_id ) 
+		? '{"code":"error"}'
+		: '{"code":"success"}';
+	}
+
+	public function bbp_add_rest_api_routes() {
+
+		register_rest_route( 'relatorio', '/save', array(
+			'methods' => 'POST',
+			'callback' => array( $this, 'bbp_save_relatorio' ),
+		));
 	}
 
 }

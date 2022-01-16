@@ -20,3 +20,16 @@
 .form-item input {
     width: 100%;
 }
+
+.relatorios {
+    margin: 10px 16px 0;
+    padding-bottom: 16px;
+}
+
+.relatorios legend {
+    padding: 8px;
+}
+
+.relatorios .col-form-label {
+    font-weight: 600;
+}

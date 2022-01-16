@@ -186,6 +186,9 @@ class Extras4bbpress {
 
 		$this->loader->add_action( 'bbp_template_before_single_topic', $plugin_public, 'bbp_get_infos_header', 1, 0 );
 		//$this->loader->add_action( 'bbp_template_after_single_topic', $plugin_public, 'bbp_get_infos_footer', 10, 0 );
+		$this->loader->add_filter( 'bbp_get_reply_admin_links', $plugin_public, 'bbp_new_admin_links', 10, 3 );
+		$this->loader->add_action( 'bbp_template_after_replies_loop', $plugin_public, 'bbp_btn_get_relatorio', 10, 0 );
+		$this->loader->add_action( 'rest_api_init', $plugin_public, 'bbp_add_rest_api_routes' );
 
 	}
 
