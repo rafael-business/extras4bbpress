@@ -33,3 +33,12 @@
 .relatorios .col-form-label {
     font-weight: 600;
 }
+
+.results {
+	width: 100%;
+    display: none;
+}
+
+.results .alert {
+	display: none;
+}

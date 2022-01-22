@@ -250,6 +250,23 @@ class Extras4bbpress_Public {
 			return;
 
 		$url_save = get_rest_url( null, 'relatorio/save' );
+
+		$doc_tags = get_terms( array( 
+		    'taxonomy'   => 'doc_tag',
+		    'parent'   	 => 0,
+		    'hide_empty' => false
+		));
+
+		$query_docs = new WP_Query( array(
+			'post_type'		=> 'docs',
+			'post_parent'	=> 0,
+			'post_status' 	=> array( 'publish' ),
+    		'perm'        	=> 'readable',
+			'nopaging'      => TRUE,
+			'posts_per_page'=> -1,
+			'order'         => 'DESC',
+			'orderby'       => 'ID'
+		));
 		
 		?>
 		<div class="row">
@@ -282,14 +299,28 @@ class Extras4bbpress_Public {
 						<?= __( 'Etiqueta', 'extras4bbpress' ) ?>
 					</label>
 					<div class="col-sm-9">
-						<div class="form-check form-check-inline">
-							<input class="form-check-input" type="radio" name="relatorio_etiqueta" id="etiqueta_publico" value="0" checked>
-							<label class="form-check-label" for="etiqueta_publico"><?= __( 'Público', 'extras4bbpress' ) ?></label>
+						<?php
+						if ( !empty($doc_tags) ) :
+					    foreach( $doc_tags as $tag ) : 
+				        if( $tag->parent == 0 ) : ?>
+			        	<div class="form-check form-check-inline">
+							<input 
+								class="form-check-input" 
+								id="etiqueta_<?= $tag->term_id ?>" 
+								type="radio" 
+								name="relatorio_etiqueta" 
+								value="<?= $tag->slug ?>" 
+								checked
+							>
+							<label 
+								class="form-check-label" 
+								for="etiqueta_<?= $tag->term_id ?>"
+							><?= $tag->name ?></label>
 						</div>
-						<div class="form-check form-check-inline">
-							<input class="form-check-input" type="radio" name="relatorio_etiqueta" id="etiqueta_privado" value="1">
-							<label class="form-check-label" for="etiqueta_privado"><?= __( 'Privado', 'extras4bbpress' ) ?></label>
-						</div>
+			        	<?php
+				        endif;
+					    endforeach;
+						endif; ?>
 					</div>
 				</div>
 				<div class="form-group row">
@@ -299,7 +330,15 @@ class Extras4bbpress_Public {
 					<div class="col-sm-9 input-group">
 						<select class="form-select border border-primary rounded-left pl-3 pr-3" id="relatorio_parent">
 							<option value="0"><?= __( '-- selecione --', 'extras4bbpress' ) ?></option>
-							<option value="62"><?= __( 'Relatório de Linha de Discussão', 'extras4bbpress' ) ?></option>
+							<?php
+							if ( $query_docs->have_posts() ) : 
+							while ( $query_docs->have_posts() ) :
+							$query_docs->the_post(); ?>
+							<option value="<?= get_the_ID() ?>"><?= get_the_title() ?></option>
+							<?php
+							endwhile;
+							endif;
+							wp_reset_postdata(); ?>
 						</select>
 						<div class="input-group-append">
 							<button id="gerar_relatorio" class="btn btn-primary" type="button" data-save="<?= $url_save ?>">
@@ -307,6 +346,10 @@ class Extras4bbpress_Public {
 							</button>
 						</div>
 					</div>
+				</div>
+				<div class="results">
+					<div id="result_success" class="alert alert-success" role="alert"></div>
+					<div id="result_danger" class="alert alert-danger" role="alert"></div>
 				</div>
 			</fieldset>
 		</div>
@@ -363,10 +406,16 @@ class Extras4bbpress_Public {
 
 		$doc_id = wp_insert_post( $post_arr, true );
 
+
+		if ( !is_wp_error( $doc_id ) ) : 
+			
+			wp_set_object_terms( $doc_id, array( $post['etiqueta'] ), 'doc_tag' );
+		endif;
+
 		return 
 		is_wp_error( $doc_id ) 
-		? '{"code":"error"}'
-		: '{"code":"success"}';
+		? '{"code":"danger", "message":"'.__( 'Erro na criação do documento.', 'extras4bbpress' ).'"}'
+		: '{"code":"success", "message":"'.__( 'Documento criado com sucesso!', 'extras4bbpress' ).'"}';
 	}
 
 	public function bbp_add_rest_api_routes() {

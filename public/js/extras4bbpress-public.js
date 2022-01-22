@@ -61,7 +61,11 @@
 			$.post( url_save, dados )
 			.done(function( data ) {
 
-				console.log( data );
+				var code = JSON.parse( data ).code;
+				var message = JSON.parse( data ).message;
+				$('#result_'+code).show();
+				$('#result_'+code).text( message );
+				$('.results').show();
 			});
 		});
 	});
