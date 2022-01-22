@@ -4,7 +4,7 @@
 	$( document ).ready( function(){
 		tinymce.init( {
 			mode : "exact",
-			elements : 'relatorio_parecer',
+			elements : ['relatorio_resumo', 'relatorio_parecer'],
 			theme: "modern",
 			skin: "lightgray",
 			menubar : false,
@@ -51,6 +51,7 @@
 				gestor: $('#relatorio_gestor').val(),
 				topic: $('#relatorio_topic').val(),
 				respostas: $('#respostas').val(),
+				resumo: tinymce.get('relatorio_resumo').getContent(),
 				parecer: tinymce.get('relatorio_parecer').getContent(),
 				etiqueta: $('input[name="relatorio_etiqueta"]:checked').val(),
 				parent: $('#relatorio_parent').val()

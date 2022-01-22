@@ -250,6 +250,7 @@ class Extras4bbpress_Public {
 			return;
 
 		$url_save = get_rest_url( null, 'relatorio/save' );
+		$resumo = get_the_content();
 
 		$doc_tags = get_terms( array( 
 		    'taxonomy'   => 'doc_tag',
@@ -284,6 +285,16 @@ class Extras4bbpress_Public {
 				<input type="hidden" id="relatorio_topic_id" value="<?= get_the_ID() ?>">
 				<input type="hidden" id="relatorio_topic" value="<?= get_the_title() ?>">
 				<input type="hidden" id="relatorio_gestor" value="<?= get_current_user_id() ?>">
+				<div class="form-group row">
+					<label class="col-sm-3 col-form-label pl-4" for="relatorio_resumo">
+						<?= __( 'Resumo', 'extras4bbpress' ) ?>
+					</label>
+					<div class="col-sm-9">
+						<div class="border rounded">
+							<textarea id="relatorio_resumo" name="relatorio_resumo"><?= $resumo ?></textarea>
+						</div>
+					</div>
+				</div>
 				<div class="form-group row">
 					<label class="col-sm-3 col-form-label pl-4" for="relatorio_parecer">
 						<?= __( 'Seu parecer', 'extras4bbpress' ) ?>
@@ -374,6 +385,7 @@ class Extras4bbpress_Public {
 		if ( $query_respostas->have_posts() ) {
 
 			$content = '';
+			$content .= $post['resumo'];
 			
 			while ( $query_respostas->have_posts() ) {
 
@@ -390,7 +402,8 @@ class Extras4bbpress_Public {
 			$front['tipo'] = $post['tipo'];
 		} else {
 			
-			
+			return 
+			'{"code":"danger","message":"Você não selecionou as respostas."}';
 		}
 		
 		wp_reset_postdata();
