@@ -49,7 +49,9 @@
 			e.preventDefault();
 			const dados = {
 				gestor: $('#relatorio_gestor').val(),
+				topic_id: $('#relatorio_topic_id').val(),
 				topic: $('#relatorio_topic').val(),
+				topic_tags: $('#relatorio_topic_tags').val(),
 				respostas: $('#respostas').val(),
 				resumo: tinymce.get('relatorio_resumo').getContent(),
 				parecer: tinymce.get('relatorio_parecer').getContent(),
@@ -64,11 +66,21 @@
 
 				var code = JSON.parse( data ).code;
 				var message = JSON.parse( data ).message;
+				var link = 'success' === code ? JSON.parse( data ).link : null;
+
+				$('.results .alert').hide();
 				$('#result_'+code).show();
 				$('#result_'+code).text( message );
 				$('.results').show();
+
+				setTimeout(() => {
+					if ( link ) {window.open( link )};
+					document.location.reload(true);
+				}, 1000);
 			});
 		});
 	});
 
+
+	$(document).on( 'change', '#relatorio_encerrar', () => $('#gerador').toggle());
 })( jQuery );

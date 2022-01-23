@@ -251,6 +251,9 @@ class Extras4bbpress_Public {
 
 		$url_save = get_rest_url( null, 'relatorio/save' );
 		$resumo = get_the_content();
+		$topic_id 	= bbp_get_topic_id();
+		$inicio 	= get_post_meta( $topic_id, 'bbp_extra_dt_inicio', true );
+		$termino 	= get_post_meta( $topic_id, 'bbp_extra_dt_termino', true );
 
 		$doc_tags = get_terms( array( 
 		    'taxonomy'   => 'doc_tag',
@@ -268,6 +271,13 @@ class Extras4bbpress_Public {
 			'order'         => 'DESC',
 			'orderby'       => 'ID'
 		));
+
+		$topic_tags = array();
+		foreach ( bbp_get_topic_tags() as $tag ) : 
+			
+			array_push( $topic_tags, $tag->name );
+		endforeach;
+		$topic_tags = implode( ', ', $topic_tags );
 		
 		?>
 		<div class="row">
@@ -284,6 +294,7 @@ class Extras4bbpress_Public {
 				<input type="hidden" id="respostas">
 				<input type="hidden" id="relatorio_topic_id" value="<?= get_the_ID() ?>">
 				<input type="hidden" id="relatorio_topic" value="<?= get_the_title() ?>">
+				<input type="hidden" id="relatorio_topic_tags" value="<?= $topic_tags ?>">
 				<input type="hidden" id="relatorio_gestor" value="<?= get_current_user_id() ?>">
 				<div class="form-group row">
 					<label class="col-sm-3 col-form-label pl-4" for="relatorio_resumo">
@@ -334,7 +345,39 @@ class Extras4bbpress_Public {
 						endif; ?>
 					</div>
 				</div>
-				<div class="form-group row">
+				<?php
+				$fechado = time() > strtotime( $inicio ) && time() > strtotime( $termino );
+				$display = $fechado ? 'display: none;' : 'display: flex;'; 
+				$dias = !$fechado ?  ceil( ( strtotime( $termino ) - time() ) / (60 * 60 * 24) ) : 0; 
+				?>
+				<div class="form-group row" style="<?= $display ?>">
+					<label class="col-sm-3 col-form-label pl-4">
+						<?= __( 'Encerramento', 'extras4bbpress' ) ?>
+					</label>
+					<div class="col-sm-9">
+						<p>
+						<?php
+						printf( __( 'Esteja ciente de que, <strong>a geração do relatório encerra a discussão</strong>.<br />Em <strong>%d dias</strong>, ela seria encerrada automaticamente.', 'extras4bbpress' ), $dias );
+						?>
+						</p>
+						<div class="form-check form-check-inline">
+							<input 
+								class="form-check-input" 
+								id="relatorio_encerrar" 
+								type="checkbox" 
+							>
+							<label 
+								class="form-check-label" 
+								for="relatorio_encerrar"
+							>Estou ciente, desejo prosseguir.
+							</label>
+						</div>
+					</div>
+				</div>
+				<?php
+				$display = $fechado ? 'display: flex;' : 'display: none;'; 
+				?>
+				<div id="gerador" class="form-group row" style="<?= $display ?>">
 					<label class="col-sm-3 col-form-label pl-4" for="relatorio_parent">
 						<?= __( 'Documento', 'extras4bbpress' ) ?>
 					</label>
@@ -386,14 +429,15 @@ class Extras4bbpress_Public {
 
 			$content = '';
 			$content .= $post['resumo'];
+			$content .= 'Tags: '. $post['topic_tags'] . '<hr />';
 			
 			while ( $query_respostas->have_posts() ) {
 
 				$query_respostas->the_post();
 				$id = get_the_ID();
 
-				$content .= get_the_author() . ' em ';
-				$content .= get_the_date() . ':<br />';
+				$content .= '<strong>'. get_the_author() . '</strong>' . ' em ';
+				$content .= '<strong>'. get_the_date() . '</strong>' . ':<br />';
 				$content .= get_the_content() . '<hr />';
 			}
 
@@ -403,7 +447,7 @@ class Extras4bbpress_Public {
 		} else {
 			
 			return 
-			'{"code":"danger","message":"Você não selecionou as respostas."}';
+			'{"code":"danger","message":"'. __( 'Você não selecionou as respostas.', 'extras4bbpress' ) .'"}';
 		}
 		
 		wp_reset_postdata();
@@ -418,17 +462,22 @@ class Extras4bbpress_Public {
 		);
 
 		$doc_id = wp_insert_post( $post_arr, true );
-
+		$link = get_permalink( $doc_id );
 
 		if ( !is_wp_error( $doc_id ) ) : 
 			
 			wp_set_object_terms( $doc_id, array( $post['etiqueta'] ), 'doc_tag' );
+			$topic = array(
+				'ID'           => $post['topic_id'],
+				'post_status'  => bbp_get_closed_status_id()
+			);
+			$err = wp_update_post( $topic );
 		endif;
 
 		return 
 		is_wp_error( $doc_id ) 
 		? '{"code":"danger", "message":"'.__( 'Erro na criação do documento.', 'extras4bbpress' ).'"}'
-		: '{"code":"success", "message":"'.__( 'Documento criado com sucesso!', 'extras4bbpress' ).'"}';
+		: '{"code":"success", "message":"'.__( 'Documento criado com sucesso!', 'extras4bbpress' ).'", "link":"'.$link.'"}';
 	}
 
 	public function bbp_add_rest_api_routes() {
